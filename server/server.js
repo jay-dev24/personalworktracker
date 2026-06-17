@@ -24,3 +24,6 @@ app.listen(PORT, () => {
     `Server running on ${PORT}`
   );
 });
+
+
+module.exports = app;
