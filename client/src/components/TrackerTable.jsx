@@ -1,22 +1,100 @@
 import api from "../services/api";
 
-function TrackerTable({ data, fetchData, setEditData }) {
-  // DELETE FUNCTION
-  const deleteData = async (id) => {
-    try {
-      await api.delete(`/tracker/${id}`);
+import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
-      fetchData();
-    } catch (err) {
-      console.log(err);
-    }
+
+function TrackerTable({
+  data,
+  fetchData,
+  setEditData
+}) {
+
+  /* =========================
+     DELETE FUNCTION
+  ========================= */
+
+const deleteData = async (
+  id
+) => {
+
+  const result =
+    await Swal.fire({
+
+      title: "Delete Record?",
+
+      text:
+        "This record will be permanently deleted.",
+
+      icon: "warning",
+
+      showCancelButton: true,
+
+      confirmButtonText:
+        "Yes, Delete",
+
+      cancelButtonText:
+        "Cancel",
+
+    });
+
+  if (!result.isConfirmed)
+    return;
+
+  try {
+
+    await api.delete(
+      `/tracker/${id}`
+    );
+
+    toast.success(
+      "Data Deleted Successfully"
+    );
+
+    fetchData();
+
+  } catch (err) {
+
+    console.log(err);
+
+    toast.error(
+      "Delete Failed"
+    );
+
+  }
+
+};
+
+
+  /* =========================
+     EDIT FUNCTION
+  ========================= */
+
+  const handleEdit = (
+    item
+  ) => {
+
+    setEditData(item);
+
+    // SCROLL TOP
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+
   };
 
+
   return (
+
     <div className="table-container">
+
       <table>
+
         <thead>
+
           <tr>
+
             <th>ID</th>
 
             <th>Segment</th>
@@ -50,99 +128,163 @@ function TrackerTable({ data, fetchData, setEditData }) {
             <th>Created At</th>
 
             <th>Action</th>
+
           </tr>
+
         </thead>
 
+
         <tbody>
+
           {data.length > 0 ? (
+
             data.map((item) => (
+
               <tr key={item.id}>
-                {/* ID */}
+
                 <td>{item.id}</td>
 
-                {/* SEGMENT */}
                 <td>{item.segment}</td>
 
-                {/* CUSTOMER CODE */}
                 <td>{item.customer_code}</td>
 
-                {/* CUSTOMER NAME */}
                 <td>{item.customer_name}</td>
 
-                {/* PLANT LOCATION */}
                 <td>{item.plant_location}</td>
 
-                {/* INVOICE DATE */}
                 <td>{item.invoice_date}</td>
 
-                {/* INVOICE NO */}
                 <td>{item.invoice_no}</td>
 
-                {/* MATERIAL CODE */}
                 <td>{item.material_code}</td>
 
-                {/* ITEM */}
                 <td>{item.item}</td>
 
-                {/* QTY */}
                 <td>{item.qty}</td>
 
-                {/* RATE */}
-                <td>₹ {item.rate}</td>
+                <td>
+                  ₹ {item.rate}
+                </td>
 
-                {/* EXTRA AMOUNT */}
-                <td>₹ {item.extra_amount || 0}</td>
+                <td>
+                  ₹ {item.extra_amount || 0}
+                </td>
 
-                {/* INVOICE VALUE */}
-                <td>₹ {item.invoice_value}</td>
+                <td>
+                  ₹ {item.invoice_value}
+                </td>
 
-                {/* REMARK */}
                 <td>{item.remark}</td>
 
-                {/* PDF LINK */}
+                {/* PDF */}
                 <td>
+
                   {item.uploaded_invoice ? (
+
                     <a
-                      href={item.uploaded_invoice}
+                      href={
+                        item.uploaded_invoice
+                      }
                       target="_blank"
                       rel="noreferrer"
                     >
+
                       View PDF
+
                     </a>
+
                   ) : (
+
                     "No File"
+
                   )}
+
                 </td>
+
 
                 {/* CREATED DATE */}
                 <td>
+
                   {item.created_at
-                    ? new Date(item.created_at).toLocaleString()
+
+                    ? new Date(
+                        item.created_at
+                      ).toLocaleString()
+
                     : "-"}
+
                 </td>
 
-                {/* DELETE BUTTON */}
+
+                {/* ACTION BUTTONS */}
                 <td>
-                  <button onClick={() => setEditData(item)}>Edit</button>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "8px"
+                    }}
+                  >
+
+                    {/* EDIT */}
+                    <button
+                      onClick={() =>
+                        handleEdit(item)
+                      }
+                    >
+
+                      Edit
+
+                    </button>
+
+
+                    {/* DELETE */}
+                    <button
+                    className="deleteButton"
+                      onClick={() =>
+                        deleteData(item.id)
+                      }
+                    >
+
+                      Delete
+
+                    </button>
+
+                  </div>
+
                 </td>
+
               </tr>
+
             ))
+
           ) : (
+
             <tr>
+
               <td
                 colSpan="17"
                 style={{
-                  textAlign: "center",
+                  textAlign: "center"
                 }}
               >
+
                 No Data Found
+
               </td>
+
             </tr>
+
           )}
+
         </tbody>
+
       </table>
+
     </div>
+
   );
+
 }
 
 export default TrackerTable;

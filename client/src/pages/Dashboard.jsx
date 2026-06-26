@@ -39,59 +39,47 @@ const [toDate, setToDate] =
 
 
   // FETCH DATA
-  const fetchData = async () => {
+const fetchData = async () => {
 
-    try {
+  try {
 
-      const res =
-  await api.get("/tracker");
+    const res =
+      await api.get("/tracker");
 
-const trackerData = res.data;
-
-
-/* =========================
-   SORT OLDEST TO LATEST
-========================= */
-
-const sortedData =
-  trackerData.sort(
-    (a, b) =>
-      new Date(a.invoice_date) -
-      new Date(b.invoice_date)
-  );
+    const trackerData = res.data;
 
 
-// SET TABLE DATA
-setData(sortedData);
+    /* =========================
+       SORT OLDEST TO LATEST
+    ========================= */
+
+    const sortedData =
+      trackerData.sort(
+        (a, b) =>
+          new Date(a.invoice_date) -
+          new Date(b.invoice_date)
+      );
 
 
-/* =========================
-   SET DEFAULT DATES
-========================= */
+    // SET TABLE DATA
+    setData(sortedData);
 
-if (sortedData.length > 0) {
 
-  // OLDEST DATE
-  setFromDate(
-    sortedData[0].invoice_date
-  );
+    /* =========================
+       NO DEFAULT DATE SELECTION
+    ========================= */
 
-  // LATEST DATE
-  setToDate(
-    sortedData[
-      sortedData.length - 1
-    ].invoice_date
-  );
+    // FROM DATE & TO DATE
+    // WILL REMAIN EMPTY
+    // UNTIL USER SELECTS THEM
 
-}
+  } catch (err) {
 
-    } catch (err) {
+    console.log(err);
 
-      console.log(err);
+  }
 
-    }
-
-  };
+};
 
 
 

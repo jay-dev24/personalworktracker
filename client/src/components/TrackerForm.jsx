@@ -3,8 +3,13 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 import api from "../services/api";
+import { toast } from "react-toastify";
 
-function TrackerForm({ fetchData, editData, setEditData }) {
+function TrackerForm({
+  fetchData,
+  editData,
+  setEditData
+}) {
 
   const {
     register,
@@ -14,15 +19,27 @@ function TrackerForm({ fetchData, editData, setEditData }) {
     setValue
   } = useForm();
 
-  // WATCH VALUES
-  const qty = watch("qty") || 0;
 
-  const rate = watch("rate") || 0;
+  /* =========================
+     WATCH VALUES
+  ========================= */
+
+  const qty =
+    parseFloat(watch("qty")) || 0;
+
+  const rate =
+    parseFloat(watch("rate")) || 0;
 
   const extraAmount =
-    watch("extraAmount") || 0;
+    parseFloat(
+      watch("extraAmount")
+    ) || 0;
 
-  // AUTO CALCULATION
+
+  /* =========================
+     AUTO CALCULATION
+  ========================= */
+
   useEffect(() => {
 
     const basicAmount =
@@ -34,7 +51,7 @@ function TrackerForm({ fetchData, editData, setEditData }) {
     const total =
       basicAmount +
       gst +
-      Number(extraAmount);
+      extraAmount;
 
     setValue(
       "invoiceValue",
@@ -49,157 +66,226 @@ function TrackerForm({ fetchData, editData, setEditData }) {
   ]);
 
 
+  /* =========================
+     EDIT DATA
+  ========================= */
+
   useEffect(() => {
 
-  if (editData) {
+    if (editData) {
 
-    setValue(
-      "segment",
-      editData.segment
-    );
+      setValue(
+        "segment",
+        editData.segment
+      );
 
-    setValue(
-      "customerCode",
-      editData.customer_code
-    );
+      setValue(
+        "customerCode",
+        editData.customer_code
+      );
 
-    setValue(
-      "customerName",
-      editData.customer_name
-    );
+      setValue(
+        "customerName",
+        editData.customer_name
+      );
 
-    setValue(
-      "plantLocation",
-      editData.plant_location
-    );
+      setValue(
+        "plantLocation",
+        editData.plant_location
+      );
 
-    setValue(
-      "invoiceDate",
-      editData.invoice_date
-    );
+      setValue(
+        "invoiceDate",
+        editData.invoice_date
+      );
 
-    setValue(
-      "invoiceNo",
-      editData.invoice_no
-    );
+      setValue(
+        "invoiceNo",
+        editData.invoice_no
+      );
 
-    setValue(
-      "materialCode",
-      editData.material_code
-    );
+      setValue(
+        "materialCode",
+        editData.material_code
+      );
 
-    setValue(
-      "item",
-      editData.item
-    );
+      setValue(
+        "item",
+        editData.item
+      );
 
-    setValue(
-      "qty",
-      editData.qty
-    );
+      setValue(
+        "qty",
+        editData.qty
+      );
 
-    setValue(
-      "rate",
-      editData.rate
-    );
+      setValue(
+        "rate",
+        editData.rate
+      );
 
-    setValue(
-      "invoiceValue",
-      editData.invoice_value
-    );
+      setValue(
+        "extraAmount",
+        editData.extra_amount || 0
+      );
 
-    setValue(
-      "remark",
-      editData.remark
+      setValue(
+        "invoiceValue",
+        editData.invoice_value
+      );
+
+      setValue(
+        "remark",
+        editData.remark
+      );
+
+    }
+
+  }, [editData, setValue]);
+
+
+  /* =========================
+     CAPITAL LETTER FUNCTION
+  ========================= */
+
+  const handleUpperCase = (
+    e
+  ) => {
+
+    e.target.value =
+      e.target.value.toUpperCase();
+
+  };
+
+
+  /* =========================
+     SUBMIT FORM
+  ========================= */
+
+  const onSubmit = async (
+    formData
+  ) => {
+
+    try {
+
+      const sendData =
+        new FormData();
+
+      Object.keys(formData)
+        .forEach((key) => {
+
+          if (
+            key === "invoiceFile"
+          ) {
+
+            if (
+              formData.invoiceFile &&
+              formData.invoiceFile[0]
+            ) {
+
+              sendData.append(
+                "invoiceFile",
+                formData.invoiceFile[0]
+              );
+
+            }
+
+          } else {
+
+            sendData.append(
+              key,
+              formData[key]
+            );
+
+          }
+
+        });
+
+
+      /* =========================
+         UPDATE DATA
+      ========================= */
+
+      if (editData) {
+
+        await api.put(
+          `/tracker/${editData.id}`,
+          sendData,
+          {
+            headers: {
+              "Content-Type":
+                "multipart/form-data"
+            }
+          }
+        );
+
+         toast.success(
+    "Data Updated Successfully"
+  );
+
+        setEditData(null);
+
+      }
+
+      /* =========================
+         ADD DATA
+      ========================= */
+
+      else {
+
+        await api.post(
+          "/tracker",
+          sendData,
+          {
+            headers: {
+              "Content-Type":
+                "multipart/form-data"
+            }
+          }
+        );
+
+        toast.success(
+          "Data Added Successfully"
+        );
+
+      }
+
+
+      reset();
+
+      fetchData();
+
+    } catch (err) {
+
+  console.log(err);
+
+  const message =
+    err.response?.data?.message;
+
+  // DUPLICATE INVOICE
+  if (
+    message?.includes(
+      "tracker_invoice_no_key"
+    )
+  ) {
+
+      toast.error(
+      "Invoice Number already exists"
     );
 
   }
 
-}, [editData, setValue]);
+  else {
 
+    toast.error(
+      "Something went wrong"
+    );
 
-
-  // SUBMIT FORM
-const onSubmit = async (
-  formData
-) => {
-
-  try {
-
-    const sendData =
-      new FormData();
-
-    Object.keys(formData)
-      .forEach((key) => {
-
-        if (
-          key === "invoiceFile"
-        ) {
-
-          sendData.append(
-            "invoiceFile",
-            formData.invoiceFile[0]
-          );
-
-        } else {
-
-          sendData.append(
-            key,
-            formData[key]
-          );
-
-        }
-
-      });
-
-   if (editData) {
-
-  await api.put(
-    `/tracker/${editData.id}`,
-    sendData,
-    {
-      headers: {
-        "Content-Type":
-          "multipart/form-data"
-      }
-    }
-  );
-
-  alert("Data Updated");
-
-  setEditData(null);
-
-} else {
-
-  await api.post(
-    "/tracker",
-    sendData,
-    {
-      headers: {
-        "Content-Type":
-          "multipart/form-data"
-      }
-    }
-  );
-
-  alert("Data Added");
+  }
 
 }
 
-    alert("Data Added");
-
-    reset();
-
-    fetchData();
-
-  } catch (err) {
-
-    console.log(err);
-
-  }
-
-};
-
+  };
 
 
   return (
@@ -209,25 +295,32 @@ const onSubmit = async (
     >
 
 
-    
       {/* SEGMENT */}
       <input
         placeholder="Segment"
         {...register("segment")}
+        onInput={handleUpperCase}
       />
 
- <input
-  placeholder="Customer Code"
-  {...register("customerCode")}
-/>
+
+      {/* CUSTOMER CODE */}
+      <input
+        placeholder="Customer Code"
+        {...register("customerCode")}
+        onInput={handleUpperCase}
+      />
 
 
-      {/* CUSTOMER */}
+      {/* CUSTOMER NAME */}
       <input
         placeholder="Customer Name"
-        {...register("customerName", {
-          required: true
-        })}
+        {...register(
+          "customerName",
+          {
+            required: true
+          }
+        )}
+        onInput={handleUpperCase}
       />
 
 
@@ -235,6 +328,7 @@ const onSubmit = async (
       <input
         placeholder="Plant Location"
         {...register("plantLocation")}
+        onInput={handleUpperCase}
       />
 
 
@@ -245,32 +339,40 @@ const onSubmit = async (
       />
 
 
-      {/* INVOICE */}
+      {/* INVOICE NO */}
       <input
         placeholder="Invoice No"
-        {...register("invoiceNo", {
-          required: true
-        })}
+        {...register(
+          "invoiceNo",
+          {
+            required: true
+          }
+        )}
+        onInput={handleUpperCase}
       />
 
-   <input
-  placeholder="Material Code"
-  {...register("materialCode")}
-/>
+
+      {/* MATERIAL CODE */}
+      <input
+        placeholder="Material Code"
+        {...register("materialCode")}
+        onInput={handleUpperCase}
+      />
 
 
       {/* ITEM */}
       <input
         placeholder="Item"
         {...register("item")}
+        onInput={handleUpperCase}
       />
-
-    
 
 
       {/* QTY */}
       <input
         type="number"
+        step="0.01"
+        min="0"
         placeholder="Qty"
         {...register("qty")}
       />
@@ -279,6 +381,8 @@ const onSubmit = async (
       {/* RATE */}
       <input
         type="number"
+        step="0.01"
+        min="0"
         placeholder="Rate"
         {...register("rate")}
       />
@@ -287,6 +391,8 @@ const onSubmit = async (
       {/* EXTRA AMOUNT */}
       <input
         type="number"
+        step="0.01"
+        min="0"
         placeholder="Extra Amount"
         {...register("extraAmount")}
       />
@@ -295,8 +401,9 @@ const onSubmit = async (
       {/* INVOICE VALUE */}
       <input
         type="number"
+        step="0.01"
         placeholder="Invoice Value"
-        readOnly
+        // readOnly
         {...register("invoiceValue")}
       />
 
@@ -305,20 +412,27 @@ const onSubmit = async (
       <input
         placeholder="Remark"
         {...register("remark")}
+        onInput={handleUpperCase}
       />
 
-        <input
+
+      {/* PDF FILE */}
+      <input
         type="file"
         accept=".pdf"
         {...register("invoiceFile")}
-        />
+      />
 
+
+      {/* BUTTON */}
       <button type="submit">
-              {
+
+        {
           editData
-          ? "Update Data"
-          : "Save Data"
+            ? "Update Data"
+            : "Save Data"
         }
+
       </button>
 
     </form>

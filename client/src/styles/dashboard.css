@@ -430,6 +430,18 @@ table button {
 
 }
 
+table .deleteButton {
+  background: #dc3545;
+
+  padding: 8px 12px;
+
+  font-size: 13px;
+}
+
+table .deleteButton:hover{
+  background: #b52b3a;
+}
+
 table button:hover {
   background: #1f7d34;
 }
