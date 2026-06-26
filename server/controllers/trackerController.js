@@ -55,6 +55,29 @@ const addTrackerData =
 
 
 
+    const duplicateInvoice =
+  await supabase
+    .from("tracker")
+    .select("*")
+    .eq(
+      "invoice_no",
+      data.invoice_no
+    )
+    .single();
+
+    if (duplicateInvoice.data) {
+
+      return res.status(400).json({
+
+        success: false,
+
+        message:
+          "Invoice Number already exists"
+
+      });
+
+    }
+
     // INSERT DATA
     const { data, error } =
       await supabase
