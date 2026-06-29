@@ -889,3 +889,63 @@ table button:hover {
   font-weight: bold;
 
 }
+
+
+/* =========================
+   TOAST CONTAINER
+========================= */
+
+.custom-toast-container {
+  width: auto;
+}
+
+
+/* =========================
+   TOAST BOX
+========================= */
+
+.custom-toast {
+  border-radius: 12px !important;
+  min-height: 55px;
+  font-size: 14px;
+  padding: 10px;
+}
+
+
+/* =========================
+   TOAST BODY
+========================= */
+
+.custom-toast-body {
+  font-size: 14px;
+  font-weight: 500;
+  padding: 0;
+}
+
+
+/* =========================
+   MOBILE VIEW
+========================= */
+
+@media (max-width: 768px) {
+
+  .Toastify__toast-container {
+    width: 95vw !important;
+    left: 50% !important;
+    transform: translateX(-50%);
+    top: 10px;
+  }
+
+  .Toastify__toast {
+    width: 100% !important;
+    margin-bottom: 10px;
+    border-radius: 10px !important;
+    font-size: 13px;
+  }
+
+  .Toastify__toast-body {
+    font-size: 13px;
+    line-height: 18px;
+  }
+
+}
