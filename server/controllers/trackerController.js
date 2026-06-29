@@ -61,7 +61,7 @@ const addTrackerData =
     .select("*")
     .eq(
       "invoice_no",
-      data.invoice_no
+      body.invoiceNo
     )
     .single();
 

@@ -27,11 +27,6 @@ router.post(
   addTrackerData
 );
 
-router.put(
-  "/:id",
-  upload.single("invoiceFile"),
-  updateTrackerData
-);
 
 
 // DELETE
@@ -41,6 +36,7 @@ router.delete("/:id", deleteTrackerData);
 // UPDATE
 router.put(
   "/:id",
+  upload.single("invoiceFile"),
   validateTracker,
   updateTrackerData
 );
